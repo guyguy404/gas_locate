@@ -34,12 +34,6 @@ def generate_launch_description():
                 )]), launch_arguments={'use_sim_time': 'true', 'world':world_path}.items()
     )
 
-    smartcar = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory(package_name),'launch','smartcar.launch.py'
-                )]), launch_arguments={'use_sim_time': 'true', 'world':world_path}.items()
-    )
-
     # Include the Gazebo launch file, provided by the gazebo_ros package
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
@@ -47,14 +41,18 @@ def generate_launch_description():
              )
 
     # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
-    spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
-                        arguments=['-topic', 'robot_description',
-                                   '-entity', 'mbot',
-                                   '-x', spawn_x_val,
-                                   '-y', spawn_y_val,
-                                   '-z', spawn_z_val,
-                                   '-Y', spawn_yaw_val],
-                        output='screen')
+    def spawn_entity(name, x=0.0, y=0.0, z=0.0, yaw=0.0):
+        return Node(package='gazebo_ros', executable='spawn_entity.py',
+                    # namespace=name,
+                    arguments=['-topic', 'robot_description',
+                                '-entity', name, '-robot_namespace', name,
+                                '-x', str(x),
+                                '-y', str(y),
+                                '-z', str(z),
+                                '-Y', str(yaw)],
+                    output='screen')
+    car1 = spawn_entity('car1', -0.5, -0.5, 0.0, 0.0)
+    car2 = spawn_entity('car2', 0.5, 0.5, 0.0, 0.0)
 
 
 
@@ -62,5 +60,6 @@ def generate_launch_description():
     return LaunchDescription([
         mbot,
         gazebo,
-        spawn_entity,
+        car1,
+        car2,
     ])

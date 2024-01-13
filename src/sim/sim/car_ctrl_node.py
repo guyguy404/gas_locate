@@ -6,10 +6,10 @@ from interfaces.srv import CarCtrl
 
 
 class CarCtrlNode(Node):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, car_name):
+        super().__init__(car_name + "_ctrl_node")
         self.srv = self.create_service(CarCtrl, 'car_ctrl', self.car_ctrl_callback)
-        self.pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.pub = self.create_publisher(Twist, car_name + '/cmd_vel', 10)
     
     def car_ctrl_callback(self, request, response):
         self.get_logger().info("callback")

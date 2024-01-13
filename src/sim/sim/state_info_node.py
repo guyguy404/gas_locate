@@ -8,26 +8,42 @@ class StateInfoNode(Node):
     def __init__(self, name):
         super().__init__(name)
         self.client = self.create_client(GetEntityState, '/gazebo/get_entity_state')
-        self.request = GetEntityState.Request()
     
-    def send_request(self):
-        self.request.name = "mbot"
-        self.request.reference_frame = "world"
-        self.future = self.client.call_async(self.request)
+    def send_request(self, car_name):
+        request = GetEntityState.Request()
+        request.name = car_name
+        request.reference_frame = "world"
+        return self.client.call_async(request)
 
     def get(self):
-        self.send_request()
+        future_dict = {
+            "car1": self.send_request("car1"),
+            "car2": self.send_request("car2")
+        }
+        done_num = 0
+        done_dict = {
+            car_name: False
+            for car_name, _ in future_dict.items()
+        }
+        ret_dict = {}
 
         while rclpy.ok():
             rclpy.spin_once(self)
 
-            if self.future.done():
-                try:
-                    response = self.future.result()
-                except Exception as e:
-                    self.get_logger().info(
-                        'Service call failed %r' % (e,))
-                else:
-                    # print(response.state)
-                    return response.state
-                break
+            for car_name, future in future_dict.items():
+                if done_dict[car_name]:
+                    continue
+                if future.done():
+                    try:
+                        response = future.result()
+                    except Exception as e:
+                        self.get_logger().info(
+                            'Service call failed %r' % (e,))
+                    else:
+                        done_num += 1
+                        done_dict[car_name] = True
+                        ret_dict[car_name] = response.state
+
+                        if done_num == len(future_dict):
+                            return ret_dict
+            
