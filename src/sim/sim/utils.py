@@ -6,7 +6,7 @@ from sim.state_info_node import StateInfoNode
 
 
 class Info:
-    pos: tuple[float, float]
+    pos: list[float]
     """position of the car: (x, y), unit: meter"""
 
     orien: float
@@ -17,9 +17,9 @@ class Info:
 
     def __init__(
             self, 
-            pos: tuple[float, float] = (0, 0), 
-            orien: float = 0, 
-            gas_conc: float = 0
+            pos: list[float] = [0.0, 0.0],
+            orien: float = 0.0,
+            gas_conc: float = 0.0
     ) -> None:
         self.pos = pos
         self.orien = orien
@@ -43,16 +43,16 @@ class Utils:
         self._state_info_node = StateInfoNode("state_info_node")
 
     def forward(self, car_name, speed: float):
-        self._car_ctrl_node_dict[car_name].forward(speed)
+        self._car_ctrl_node_dict[car_name].forward(float(speed))
     
     def rotate(self, car_name, speed: float):
-        self._car_ctrl_node_dict[car_name].rotate(speed)
+        self._car_ctrl_node_dict[car_name].rotate(float(speed))
     
     def get_info(self) -> dict[str, Info]:
         state_dict = self._state_info_node.get()
         ret_dict = {}
         for car_name, state in state_dict.items():
-            pos = (state.pose.position.x, state.pose.position.y)
+            pos = [state.pose.position.x, state.pose.position.y]
             orien = acos(state.pose.orientation.w) * 2
             gas_conc = self._gas_info.get(pos)
             info = Info(pos, orien, gas_conc)
