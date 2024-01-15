@@ -18,6 +18,7 @@ class GasInfo:
         self.kdtree = KDTree(self.points)
     
     def get(self, pos: tuple[float, float]) -> float:
+        pos = (pos[0] / 4, pos[1] / 4)
         dist, idx = self.kdtree.query(pos)
         point = self.points[idx]
         return self.pos2conc[(point[0], point[1])]

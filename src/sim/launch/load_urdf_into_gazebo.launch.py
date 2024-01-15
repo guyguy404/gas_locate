@@ -17,17 +17,11 @@ def generate_launch_description():
     # !!! MAKE SURE YOU SET THE PACKAGE NAME CORRECTLY !!!
 
     package_name='sim' #<--- CHANGE ME
-    world_file_path = 'worlds/sim_env_2m.world'
+    world_file_path = 'worlds/sim_env_8m.world'
     
     pkg_path = os.path.join(get_package_share_directory(package_name))
     world_path = os.path.join(pkg_path, world_file_path)  
     
-    # Pose where we want to spawn the robot
-    spawn_x_val = '0.0'
-    spawn_y_val = '0.0'
-    spawn_z_val = '0.0'
-    spawn_yaw_val = '0.0'
-  
     mbot = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory(package_name),'launch','mbot.launch.py'
@@ -51,8 +45,10 @@ def generate_launch_description():
                                 '-z', str(z),
                                 '-Y', str(yaw)],
                     output='screen')
-    car1 = spawn_entity('car1', -0.5, -0.5, 0.0, 0.0)
-    car2 = spawn_entity('car2', 0.5, 0.5, 0.0, 0.0)
+    
+    p = 3.5
+    car1 = spawn_entity('car1', -p, -p, 0.0, 0.0)
+    car2 = spawn_entity('car2', p, p, 0.0, 0.0)
 
 
 
